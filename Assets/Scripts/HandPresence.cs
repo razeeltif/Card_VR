@@ -16,7 +16,7 @@ public class HandPresence : MonoBehaviour
     List<UnityEngine.XR.InputDevice> listDevices;
 
     private InputDevice targetDevice;
-    private GameObject spawnedHandModel;
+    private GameObject spawnedHandModel = null;
 
 
     void Awake()
@@ -24,7 +24,7 @@ public class HandPresence : MonoBehaviour
 
         listDevices = new List<UnityEngine.XR.InputDevice>();
 
-      /*  InputDevices.deviceConnected += onDeviceConnected;
+       /* InputDevices.deviceConnected += onDeviceConnected;
         InputDevices.deviceDisconnected += onDeviceDisconnected;*/
     }
 
@@ -32,14 +32,41 @@ public class HandPresence : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-        refreshDevices();
-
+        UnityEngine.XR.InputDevices.GetDevicesWithCharacteristics(controllerCharacteristics, listDevices);    
+        if(listDevices.Count > 0)
+        {
+            targetDevice = listDevices[0];
+            Debug.LogWarning("TREOUVEVEVEVEVE");
+        }
+        else
+        {
+            Debug.LogWarning("NON");
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+
+        if(listDevices.Count == 0)
+        {
+            UnityEngine.XR.InputDevices.GetDevicesWithCharacteristics(controllerCharacteristics, listDevices);
+            if(listDevices.Count > 0)
+            {
+            targetDevice = listDevices[0];
+
+                if(spawnedHandModel != null)
+                {
+                    spawnedHandModel.SetActive(true);
+                }
+                else
+                {
+                    spawnedHandModel = Instantiate(handModelPrefab, transform);
+                }
+                Debug.LogWarning("TREOUVEVEVEVEVE");
+            }
+            
+        }
 
     }
 
@@ -48,13 +75,19 @@ public class HandPresence : MonoBehaviour
     {
         Debug.Log(string.Format("Connected : name '{0}' and role '{1}'", device.name, device.characteristics.ToString()));
 
-
-
-        refreshDevices();
-
-        if(targetDevice.name != device.name)
+        UnityEngine.XR.InputDevices.GetDevicesWithCharacteristics(controllerCharacteristics, listDevices);    
+        if(listDevices.Count > 0)
         {
-            spawnedHandModel = Instantiate(handModelPrefab, transform);
+            targetDevice = listDevices[0];
+
+            if(spawnedHandModel != null)
+            {
+                spawnedHandModel.SetActive(true);
+            }
+            else
+            {
+                spawnedHandModel = Instantiate(handModelPrefab, transform);
+            }
         }
 
     }
@@ -62,12 +95,15 @@ public class HandPresence : MonoBehaviour
     private void onDeviceDisconnected(UnityEngine.XR.InputDevice device)
     {
         Debug.Log(string.Format("Disconnected : name '{0}' and role '{1}'", device.name, device.characteristics.ToString()));
-        
-        if(targetDevice.name == device.name)
-        {
-            Destroy(spawnedHandModel);
+
+        UnityEngine.XR.InputDevices.GetDevicesWithCharacteristics(controllerCharacteristics, listDevices);    
+        if(listDevices.Count == 0)
+        {        
+            if(spawnedHandModel != null)
+            {
+                spawnedHandModel.SetActive(false);
+            }
         }
-        refreshDevices();
     }
 
     private void refreshDevices()
@@ -76,10 +112,6 @@ public class HandPresence : MonoBehaviour
         if(listDevices.Count > 0)
         {
             targetDevice = listDevices[0];
-            spawnedHandModel = Instantiate(handModelPrefab, transform);
-        }
-        else{
-            Debug.LogError("No devices found");
         }
     }
 

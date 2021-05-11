@@ -46,11 +46,7 @@ public class ControllersManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        leftHand.TryGetFeatureValue(CommonUsages.primaryButton, out bool primaryButtonValue);
-        if(primaryButtonValue)
-        {
-            Debug.LogWarning("JE SUIS PRESSEEE");
-        }
+
     }
 
 
